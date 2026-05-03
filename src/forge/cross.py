@@ -330,18 +330,38 @@ class CrossVEnv:
                 raise RuntimeError(f"Environment {self} already exists.")
 
         print(f"Creating {self}...")
+
+        # Build the crossenv command, optionally overriding CC via NDK_HOME.
+        # The sysconfigdata baked into the Python-for-Android support package
+        # records the CC path from the CI runner that built it (e.g.
+        # /home/runner/ndk/...).  When NDK_HOME is set locally we pass --cc
+        # so crossenv uses the correct local compiler instead.
+        crossenv_cmd = [
+            sys.executable,
+            "-m",
+            "crossenv",
+            "--sysconfigdata-file",
+            str(host_sysconfig),
+        ]
+        ndk_home = os.environ.get("NDK_HOME")
+        if ndk_home and self.host_os == "android":
+            ndk_bin = (
+                Path(ndk_home)
+                / "toolchains"
+                / "llvm"
+                / "prebuilt"
+                / "linux-x86_64"
+                / "bin"
+            )
+            cc = ndk_bin / f"{self.platform_triplet}{self.sdk_version}-clang"
+            crossenv_cmd += ["--cc", str(cc)]
+
+        crossenv_cmd += [str(host_python), self.venv_path]
+
         try:
             subprocess.run(
                 None,  # Creating the cross venv isn't logged.
-                [
-                    sys.executable,
-                    "-m",
-                    "crossenv",
-                    "--sysconfigdata-file",
-                    str(host_sysconfig),
-                    str(host_python),
-                    self.venv_path,
-                ],
+                crossenv_cmd,
                 **self.cross_kwargs({}),
             )
         except subprocess.CalledProcessError:

@@ -746,6 +746,10 @@ class PythonPackageBuilder(Builder):
 
     @property
     def source_archive_path(self) -> Path:
+        source = self.package.meta.get("source", "pypi")
+        if isinstance(source, dict) and "url" in source:
+            filename = self.download_source_url().split("/")[-1]
+            return Path.cwd() / "downloads" / filename
         return (
             Path.cwd()
             / "downloads"
@@ -779,6 +783,12 @@ class PythonPackageBuilder(Builder):
         return f"{py_tag}-{py_tag}-{self.cross_venv.tag}"
 
     def download_source_url(self):
+        source = self.package.meta.get("source", "pypi")
+        if isinstance(source, dict) and "url" in source:
+            return source["url"].format(
+                version=self.package.version,
+                build=self.package.meta["build"]["number"],
+            )
         return get_pypi_source_urls(self.package.name)[self.package.version]
 
     def prepare(self, clean=True):
