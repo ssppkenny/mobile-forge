@@ -1,0 +1,46 @@
+--- a/djvu/common.pxi	2026-05-03 08:17:35.942991023 +0200
++++ b/djvu/common.pxi	2026-05-03 08:17:35.951561750 +0200
+@@ -24,22 +24,33 @@
+ from cpython.mem cimport PyMem_Free as py_free
+ 
+ # Python numbers:
++# Cython 3 no longer allows cimport aliases to be called as functions;
++# wrap them as cdef inline functions instead.
+ 
+-from cpython cimport (
+-    PyLong_Check as is_int,
+-    PyNumber_Check as is_number,
+-    PyFloat_Check as is_float,
+-)
++from cpython cimport PyLong_Check, PyNumber_Check, PyFloat_Check
++from cpython cimport PyUnicode_Check, PyBytes_Check
++
++cdef inline bint is_int(object o):
++    return PyLong_Check(o)
++
++cdef inline bint is_number(object o):
++    return PyNumber_Check(o)
++
++cdef inline bint is_float(object o):
++    return PyFloat_Check(o)
+ 
+ from cpython cimport PyNumber_Long as int
+ 
+ # Python strings:
+ 
+-from cpython cimport (
+-    PyUnicode_Check as is_unicode,
+-    PyUnicode_Check as is_string,
+-    PyBytes_Check as is_bytes,
+-)
++cdef inline bint is_unicode(object o):
++    return PyUnicode_Check(o)
++
++cdef inline bint is_string(object o):
++    return PyUnicode_Check(o)
++
++cdef inline bint is_bytes(object o):
++    return PyBytes_Check(o)
+ 
+ from cpython cimport (
+     PyUnicode_AsUTF8String as encode_utf8,

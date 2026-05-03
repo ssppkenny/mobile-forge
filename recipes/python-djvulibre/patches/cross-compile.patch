@@ -1,0 +1,56 @@
+--- a/setup.py
++++ b/setup.py
+@@ -80,6 +80,20 @@
+     return stdout
+ 
+ def pkgconfig_build_flags(*packages, **kwargs):
++    # Mobile-forge cross-compile: bypass pkg-config and use env vars injected
++    # by the recipe's script_env (DJVULIBRE_INCLUDE_DIR, DJVULIBRE_LIB_DIR).
++    include_dir = os.environ.get('DJVULIBRE_INCLUDE_DIR')
++    lib_dir = os.environ.get('DJVULIBRE_LIB_DIR')
++    if include_dir and lib_dir:
++        # Also link jpeg (DjVuLibre uses it internally) and c++_shared
++        # (C++ ABI; provided by flet-libcpp-shared).  Both are installed
++        # alongside libdjvulibre.a in the same opt/lib directory.
++        return dict(
++            include_dirs=[include_dir],
++            library_dirs=[lib_dir],
++            libraries=['djvulibre', 'jpeg', 'c++_shared'],
++            runtime_library_dirs=[],
++        )
+     flag_map = {
+         '-I': 'include_dirs',
+         '-L': 'library_dirs',
+@@ -110,6 +124,10 @@
+     return stdout.strip()
+ 
+ def get_djvulibre_version():
++    # Mobile-forge cross-compile: use DJVULIBRE_VERSION env var if set.
++    env_version = os.environ.get('DJVULIBRE_VERSION')
++    if env_version:
++        return Version(env_version)
+     version = pkgconfig_version('ddjvuapi')
+     if version is None:
+         if os.name == 'posix':
+@@ -135,7 +153,8 @@
+ req_cython_version = '3.0'
+ 
+ # Work-around for <https://bugs.python.org/issue969718>:
+-os.environ.pop('CFLAGS', None)
++# NOTE: Disabled for mobile-forge cross-compile — CFLAGS must be preserved.
++# os.environ.pop('CFLAGS', None)
+ 
+ class build_ext(setuptools.command.build_ext.build_ext):
+ 
+@@ -151,7 +170,10 @@
+         new_config = [
+             'DEF PYTHON_DJVULIBRE_VERSION = b"{0}"'.format(py_version),
+             'DEF HAVE_MINIEXP_IO_T = {0}'.format(djvulibre_version >= Version('3.5.26')),
+-            'DEF HAVE_LANGINFO_H = {0}'.format(os.name == 'posix'),
++            # Android Bionic does not provide langinfo.h / nl_langinfo; allow
++            # the recipe to override via HAVE_LANGINFO_H env var.
++            'DEF HAVE_LANGINFO_H = {0}'.format(
++                os.environ.get('HAVE_LANGINFO_H', str(os.name == 'posix')) == 'True'),
+             'DEF WINDOWS = {0}'.format(os.name == 'nt'),
+         ]
+         self.src_dir = src_dir = os.path.join(self.build_temp, 'src')

@@ -1,0 +1,34 @@
+package:
+  name: python-djvulibre
+  version: 0.8.8
+
+# Use the ssppkenny GitHub fork which has Python 3-only Cython code.
+# The PyPI 0.8.8 tarball still contains Python 2/3 compatibility code
+# (IF PY3K, PyInt_Check, PyString_Check) that does not compile with
+# Cython 3 + Python 3.12+.
+source:
+  url: https://github.com/ssppkenny/python-djvulibre/archive/refs/heads/master.tar.gz
+
+build:
+  number: 0
+  script_env:
+    # Paths to flet-libdjvulibre headers and library, injected into setup.py
+    # via the patched pkgconfig_build_flags() bypass.
+    DJVULIBRE_INCLUDE_DIR: '{platlib}/opt/include'
+    DJVULIBRE_LIB_DIR: '{platlib}/opt/lib'
+    # Version of DjVuLibre we built — used to generate config.pxi feature flags
+    # without calling pkg-config at build time.
+    DJVULIBRE_VERSION: '3.5.29'
+    # Android Bionic does not provide langinfo.h / nl_langinfo.
+    HAVE_LANGINFO_H: 'False'
+
+patches:
+  - cython3-compat.patch
+  - cross-compile.patch
+
+requirements:
+  build:
+    - cython >=3.0
+  host:
+    - flet-libdjvulibre 3.5.29
+    - flet-libcpp-shared
