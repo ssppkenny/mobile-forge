@@ -1,0 +1,13 @@
+package:
+  name: flet-libdjvulibre
+  version: 3.5.29
+
+source:
+  url: https://downloads.sourceforge.net/project/djvu/DjVuLibre/3.5.29/djvulibre-3.5.29.tar.gz
+
+build:
+  number: 0
+
+requirements:
+  host:
+    - flet-libjpeg 3.0.90
