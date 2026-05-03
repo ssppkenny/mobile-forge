@@ -42,7 +42,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pre-commit==3.7.0"]
+dev = ["pre-commit==4.3.0"]
 
 [project.urls]
 Homepage = "https://beeware.org"
