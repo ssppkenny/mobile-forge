@@ -10,11 +10,13 @@ that the `doc-layout` app depends on.
 
 ### 1. Android NDK
 
-Install the Android NDK (r26 or later recommended).  Set `NDK_HOME` to its
-root directory:
+Install the Android NDK.  Download the Linux zip from the
+[NDK releases page](https://github.com/android/ndk/releases), unpack it,
+and set `NDK_HOME` to its root directory.  For example, with r27d unpacked
+to `$HOME/ndk/r27d`:
 
 ```bash
-export NDK_HOME=$HOME/Android/Sdk/ndk/26.3.11579264
+export NDK_HOME=$HOME/ndk/r27d
 ```
 
 mobile-forge uses `NDK_HOME` to locate the correct `clang` compiler when
@@ -26,8 +28,18 @@ machine.
 ### 2. Python-for-Android support package
 
 mobile-forge needs pre-built Python binaries for the Android target
-architectures.  The Flet project publishes these as part of
-[flet-dev/python-for-android](https://github.com/flet-dev/python-for-android).
+architectures.  These can be obtained by building
+[flet-dev/python-for-android](https://github.com/flet-dev/python-for-android)
+from source.  For `doc-layout`, Python 3.12.12 was built locally and the
+result placed at `$HOME/projects/python-build/android/`:
+
+```bash
+export MOBILE_FORGE_ANDROID_SUPPORT_PATH=$HOME/projects/python-build/android
+```
+
+Alternatively, some versions are published as release archives on that
+repository's releases page — check there for a pre-built zip if you do not
+want to build from source.
 
 Download and unpack the support package for the Python version you need
 (3.12 for `doc-layout`):
@@ -35,8 +47,8 @@ Download and unpack the support package for the Python version you need
 ```bash
 # example — check the releases page for the current URL
 wget https://github.com/flet-dev/python-for-android/releases/download/3.12.8/python-3.12.8-android.zip
-unzip python-3.12.8-android.zip -d $HOME/android-python
-export MOBILE_FORGE_ANDROID_SUPPORT_PATH=$HOME/android-python
+unzip python-3.12.8-android.zip -d $HOME/projects/python-build/android
+export MOBILE_FORGE_ANDROID_SUPPORT_PATH=$HOME/projects/python-build/android
 ```
 
 The directory must contain:
