@@ -1,0 +1,23 @@
+package:
+  name: pymupdf
+  version: 1.27.2
+
+source:
+  url: https://github.com/pymupdf/PyMuPDF/archive/refs/tags/1.27.2.tar.gz
+
+build:
+  number: 0
+  script_env:
+    # Tell PyMuPDF to skip downloading/building MuPDF — we drive mupdfwrap.py
+    # manually from build.sh so we can inject the NDK cross-compiler.
+    PYMUPDF_SETUP_MUPDF_REBUILD: '0'
+    # Disable tesseract (not needed for rendering, avoids leptonica dep).
+    PYMUPDF_SETUP_MUPDF_TESSERACT: '0'
+    # Only build the Python flavour (p), not the binary-only (b) or devel (d).
+    PYMUPDF_SETUP_FLAVOUR: 'pb'
+
+requirements:
+  build:
+    - libclang
+  host:
+    - flet-libcpp-shared

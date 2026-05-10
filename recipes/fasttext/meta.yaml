@@ -1,0 +1,10 @@
+package:
+  name: fasttext
+  version: 0.9.3
+
+requirements:
+  build:
+    - pybind11
+
+patches:
+  - remove-march-native.patch

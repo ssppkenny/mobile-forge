@@ -1,0 +1,14 @@
+--- a/setup.py
++++ b/setup.py
+@@ -80,9 +80,9 @@
+         ],
+         language="c++",
+         extra_compile_args=[
+-            "-O0 -fno-inline -fprofile-arcs -pthread -march=native"
++            "-O0 -fno-inline -fprofile-arcs -pthread"
+             if coverage
+-            else "-O3 -funroll-loops -pthread -march=native"
++            else "-O3 -funroll-loops -pthread"
+         ],
+     ),
+ ]
